@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Bomb : Unit
 {
-    public int counter = 7;
-    private bool tickTock = true;
+    private int counter = 7;
+    private bool flipFlop = true;
 
     // Start is called before the first frame update
     void Start()
@@ -19,19 +19,33 @@ public class Bomb : Unit
         transform.GetChild(0).GetChild(0).GetComponent<TMPro.TextMeshPro>().text = counter.ToString();
         transform.rotation = Quaternion.Euler(Vector2.zero);
 
-        if (tickTock)
+        if (flipFlop)
         {
             float scale = transform.GetChild(0).localScale.x + (Time.deltaTime * 2);
             transform.GetChild(0).localScale = new Vector2(scale, scale);
             if (scale > 1.5f)
-                tickTock = false;
+                flipFlop = false;
         }
         else
         {
             float scale = transform.GetChild(0).localScale.x - (Time.deltaTime * 2);
             transform.GetChild(0).localScale = new Vector2(scale, scale);
             if (scale < 1.0f)
-                tickTock = true;
+                flipFlop = true;
+        }
+    }
+
+    public bool TickTock()
+    {
+        counter--;
+
+        if (counter == 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }

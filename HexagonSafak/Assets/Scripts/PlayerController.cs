@@ -4,22 +4,21 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private Core core;
-    private GridSystem gridSystem;
+    public Core core;
+    public GridSystem gridSystem;
 
     private Vector2 DragBeginPos = Vector2.zero;
 
     // Start is called before the first frame update
     void Start()
     {
-        core = GameObject.FindGameObjectWithTag("Settings").GetComponent<Core>();
-        gridSystem = GameObject.FindGameObjectWithTag("Settings").GetComponent<GridSystem>();
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!core.onMoving)
+        if (!core.IsMoving())
         {
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -37,8 +36,8 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            if (gridSystem.pivot != null && DragBeginPos != Vector2.zero 
-                && Vector2.Distance(DragBeginPos, gridSystem.pivot.transform.position) < 2
+            if (gridSystem.GetPivot() != null && DragBeginPos != Vector2.zero 
+                && Vector2.Distance(DragBeginPos, gridSystem.GetPivot().transform.position) < 2
                 && Vector2.Distance(DragBeginPos, mousePosition) > 0.5f)
             {
                 RotateDirection direction = CalculateRotationDirection(mousePosition);
@@ -51,7 +50,7 @@ public class PlayerController : MonoBehaviour
     public RotateDirection CalculateRotationDirection(Vector2 pullDirection)
     {
         RotateDirection direction = RotateDirection.Clockwise;
-        Vector2 pivotPosition = gridSystem.pivot.transform.position;
+        Vector2 pivotPosition = gridSystem.GetPivot().transform.position;
         Vector2 V1 = DragBeginPos - pivotPosition;
         Vector2 V2 = pullDirection - pivotPosition;
 
@@ -60,5 +59,11 @@ public class PlayerController : MonoBehaviour
             direction = RotateDirection.CounterClockwise;
 
         return direction;
+    }
+
+    public void ResetGame()
+    {
+        core.ResetStatistics();
+        gridSystem.Reset();
     }
 }

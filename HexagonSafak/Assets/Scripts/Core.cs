@@ -5,17 +5,24 @@ using UnityEngine;
 public class Core : MonoBehaviour
 {
     [Header("Game Statistics")]
-    public int score = 0;
-    public int moves = 0;
-    public int bombSpawned = 0;
-    public bool onMoving = false;
+    private int score = 0;
+    private int moves = 0;
+    private int bombSpawned = 0;
+    private bool onMoving = false;
     
     [Header("Color Settings")]
     public Color[] colors = { Color.red, Color.blue, Color.yellow, Color.green, Color.magenta };
 
+    [Header("UI Settings")]
+    public UnityEngine.UI.Text scoreBoard;
+    public UnityEngine.UI.Text moveCounter;
+    public GameObject GameOverMessage;
+
     [Header("Hexagon Settings")]
     public GameObject hexagon;
     public GameObject bomb;
+    public GameObject breakingFX;
+    public GameObject pointFX;
     public GameObject pivot;
     public Vector2 unitOffset = new Vector2(0.75f, 0.86f);
     public Vector2 pivotOffset = new Vector2(0.5f, 0.42f);
@@ -32,6 +39,18 @@ public class Core : MonoBehaviour
         
     }
 
+    public void ResetStatistics()
+    {
+        score = 0;
+        moves = 0;
+        bombSpawned = 0;
+    }
+
+    public void GameOver()
+    {
+        GameOverMessage.SetActive(true);
+    }
+
     public void SetCameraSize(float size, Vector3 position)
     {
         Camera.main.GetComponent<Camera>().orthographicSize = size;
@@ -39,31 +58,60 @@ public class Core : MonoBehaviour
         Camera.main.transform.position = position;
     }
 
-    public void IncreaseScore(int points)
+    public void StartMoving()
+    {
+        onMoving = true;
+    }
+
+    public void EndMoving()
+    {
+        onMoving = false;
+    }
+
+    public bool IsMoving()
+    {
+        return onMoving;
+    }
+
+    public void IncreaseScore(int points, Vector2 position)
     {
         score += points;
+        GameObject text = Instantiate(pointFX);
+        text.GetComponent<Points>().SetPoints(points);
+        text.transform.position = position;
+        scoreBoard.text = score.ToString();
     }
 
     public void IncreaseMoves(int count = 1)
     {
         moves += count;
+        moveCounter.text = moves.ToString();
+    }
+
+    public void IncreaseBombSpawned(int count = 1)
+    {
+        bombSpawned += count;
+    }
+
+    public int GetScore()
+    {
+        return score;
+    }
+
+    public int GetMoves()
+    {
+        return moves;
+    }
+
+    public int GetBombSpawned()
+    {
+        return bombSpawned;
     }
 
     public Color GetRandomColor()
     {
         return colors[Random.Range(0, colors.Length)];
     }
-
-    public void GameOver()
-    {
-
-    }
-}
-
-public enum RotateDirection
-{
-    Clockwise,
-    CounterClockwise
 }
 
 public class Rotator
@@ -106,6 +154,12 @@ public class Rotator
 
         return new RotationResult(newQuaternion, stepCompleted, rotationCompleted);
     }
+}
+
+public enum RotateDirection
+{
+    Clockwise,
+    CounterClockwise
 }
 
 public struct RotationResult

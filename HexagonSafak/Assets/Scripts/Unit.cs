@@ -5,7 +5,7 @@ using UnityEngine;
 public class Unit : MonoBehaviour
 {
     public Color color;
-    public GameObject breakingFX;
+    private GameObject breakingFX;
 
     // Start is called before the first frame update
     void Start()
@@ -19,15 +19,15 @@ public class Unit : MonoBehaviour
         
     }
 
-    public void Init(Color Color)
+    public void Init(Color Color, GameObject BreakingFX)
     {
         color = Color;
         GetComponent<SpriteRenderer>().color = color;
+        breakingFX = BreakingFX;
     }
 
     public void Break()
     {
-        GameObject.FindGameObjectWithTag("Settings").GetComponent<Core>().IncreaseScore(5);
         GameObject fx = Instantiate(breakingFX);
         fx.transform.position = transform.position;
         ParticleSystem.MainModule main = fx.GetComponent<ParticleSystem>().main;

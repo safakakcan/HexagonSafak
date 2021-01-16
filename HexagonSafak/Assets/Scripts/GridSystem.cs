@@ -11,10 +11,7 @@ public class GridSystem : MonoBehaviour
     public int gridHeight = 9;
 
     private GameObject[,] grid;
-
-    [HideInInspector]
-    public GameObject pivot;
-
+    private GameObject pivot;
     private Core core;
     private Rotator rotator;
     private bool fixPositions;
@@ -36,17 +33,17 @@ public class GridSystem : MonoBehaviour
 
         if (fixPositions)
         {
-            if (FixAllPositions())
+            if (FixAllPositions(10.0f, 0.001f))
             {
                 fixPositions = false;
-                core.onMoving = false;
+                core.EndMoving();
             }
         }
     }
 
     public void Reset()
     {
-        ManageCamera();
+        ManageCameraForGrid();
 
         if (grid != null)
         {
@@ -64,14 +61,14 @@ public class GridSystem : MonoBehaviour
 
         FillInBlanks();
         fixPositions = true;
-        core.onMoving = true;
+        core.StartMoving();
     }
 
-    public void ManageCamera()
+    public void ManageCameraForGrid()
     {
         Vector3 cameraPosition = (ConvertGridToPosition(gridWidth, gridHeight) - ConvertGridToPosition(0, 0)) / 2 - (core.unitOffset / 2);
         cameraPosition.z = -10;
-        float size = gridWidth * core.unitOffset.x;
+        float size = gridWidth * core.unitOffset.x + 2;
         core.SetCameraSize(size, cameraPosition);
     }
 
@@ -84,10 +81,10 @@ public class GridSystem : MonoBehaviour
                 if (grid[x, y] == null)
                 {
                     Color color = core.GetRandomColor();
-                    if ((core.score / (core.bombSpawned + 1) > 1000))
+                    if ((core.GetScore() / (core.GetBombSpawned() + 1) > 1000))
                     {
                         CreateHexagon(x, y, color, true);
-                        core.bombSpawned++;
+                        core.IncreaseBombSpawned();
                     }
                     else
                     {
@@ -322,7 +319,7 @@ public class GridSystem : MonoBehaviour
     {
         GameObject hex = Instantiate(isBomb ? core.bomb : core.hexagon);
 
-        hex.GetComponent<Unit>().Init(color);
+        hex.GetComponent<Unit>().Init(color, core.breakingFX);
         Vector2 position = ConvertGridToPosition(x, y);
         position.y += heightOffset;
         hex.transform.position = position;
@@ -401,7 +398,7 @@ public class GridSystem : MonoBehaviour
         if (pivot != null)
         {
             rotator = new Rotator(pivot, direction);
-            core.onMoving = true;
+            core.StartMoving();
         }
     }
 
@@ -431,6 +428,7 @@ public class GridSystem : MonoBehaviour
 
             if (breakList.Length > 0)
             {
+                core.IncreaseScore(breakList.Length * 5, pivot.transform.position);
                 ReleaseGroup();
 
                 foreach (GameObject hex in breakList)
@@ -447,11 +445,9 @@ public class GridSystem : MonoBehaviour
                 GameObject bomb = FindBomb();
                 if (bomb != null)
                 {
-                    bomb.GetComponent<Bomb>().counter--;
-                    if (bomb.GetComponent<Bomb>().counter == 0)
-                    {
+                    bool exploded = bomb.GetComponent<Bomb>().TickTock();
+                    if (exploded)
                         core.GameOver();
-                    }
                 }
 
                 return;
@@ -462,5 +458,10 @@ public class GridSystem : MonoBehaviour
     public void StopGroupRotation()
     {
         rotator = null;
+    }
+
+    public GameObject GetPivot()
+    {
+        return pivot;
     }
 }

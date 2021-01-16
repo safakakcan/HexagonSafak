@@ -96,8 +96,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: {r: 0, g: 0, b: 0, a: 0}
-  breakingFX: {fileID: 8612931827734963899, guid: cee3c054bb3ab2a4f8cdb1003af97c61,
-    type: 3}
+  breakingFX: {fileID: 0}
   counter: 7
 --- !u!1 &3868435911186243444
 GameObject:
