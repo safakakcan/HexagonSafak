@@ -16,9 +16,9 @@ public class Bomb : Unit
     // Update is called once per frame
     void Update()
     {
-        transform.GetChild(0).GetChild(0).GetComponent<TMPro.TextMeshPro>().text = counter.ToString();
         transform.rotation = Quaternion.Euler(Vector2.zero);
 
+        // Bomba ikonunun hareketli olarak yerinini bildiriyoruz. Pinpon tekniği ile boyutunu bir miktar arttırıp azaltıyoruz.
         if (flipFlop)
         {
             float scale = transform.GetChild(0).localScale.x + (Time.deltaTime * 2);
@@ -35,9 +35,15 @@ public class Bomb : Unit
         }
     }
 
+    /// <summary>
+    /// Bombanın sayacını çalıştırır.
+    /// </summary>
+    /// <returns></returns>
     public bool TickTock()
     {
+        // Sayacı '1' azaltıyoruz.
         counter--;
+        transform.GetChild(0).GetChild(0).GetComponent<TMPro.TextMeshPro>().text = counter.ToString();
 
         if (counter == 0)
         {

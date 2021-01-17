@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Unit : MonoBehaviour
+/// <summary>
+/// Hexagon, Bomba veya türevlerini üretmek için soyut bir birim sınıfıdır.
+/// </summary>
+public abstract class Unit : MonoBehaviour
 {
     public Color color;
     private GameObject breakingFX;
@@ -19,6 +22,11 @@ public class Unit : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="Color"></param>
+    /// <param name="BreakingFX"></param>
     public void Init(Color Color, GameObject BreakingFX)
     {
         color = Color;
@@ -26,6 +34,9 @@ public class Unit : MonoBehaviour
         breakingFX = BreakingFX;
     }
 
+    /// <summary>
+    /// İlgili birimin, obje kısmının sahneden kaldırılmasını sağlar.
+    /// </summary>
     public void Break()
     {
         GameObject fx = Instantiate(breakingFX);

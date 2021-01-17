@@ -28,8 +28,9 @@ public class PlayerController : MonoBehaviour
             }
             else if (Input.GetMouseButtonUp(0))
             {
-                if (Vector2.Distance(DragBeginPos, mousePosition) <= 0.5f)
+                if (Vector2.Distance(DragBeginPos, mousePosition) <= 0.5f) 
                 {
+                    // Kaydırma hareketi yapılmamışsa uygun olan en yakın noktada bir grup oluştur.
                     Vector2 pivotPosition = gridSystem.FindAvaiblePivotPosition(mousePosition);
                     gridSystem.CreateGroup(pivotPosition);
                     DragBeginPos = Vector2.zero;
@@ -40,6 +41,7 @@ public class PlayerController : MonoBehaviour
                 && Vector2.Distance(DragBeginPos, gridSystem.GetPivot().transform.position) < 2
                 && Vector2.Distance(DragBeginPos, mousePosition) > 0.5f)
             {
+                // Kaydırma hareketi yapılmışsa kaydırılan yönde bir döndürme işlemi başlat.
                 RotateDirection direction = CalculateRotationDirection(mousePosition);
                 gridSystem.StartGroupRotation(direction);
                 DragBeginPos = Vector2.zero;
@@ -47,6 +49,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Mevcut işaretçi konumunu kullanarak bloğun hangi yönde döndürüldüğünü hesaplar.
+    /// </summary>
+    /// <param name="pullDirection">Mevcut işaretçi konumunu ifade eder.</param>
+    /// <returns></returns>
     public RotateDirection CalculateRotationDirection(Vector2 pullDirection)
     {
         RotateDirection direction = RotateDirection.Clockwise;
@@ -61,6 +68,9 @@ public class PlayerController : MonoBehaviour
         return direction;
     }
 
+    /// <summary>
+    /// Tüm istatistikleri ve oyunu sıfırlayarak yeni bir oyun başlatır.
+    /// </summary>
     public void ResetGame()
     {
         core.ResetStatistics();

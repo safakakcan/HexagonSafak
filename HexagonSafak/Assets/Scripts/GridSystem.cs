@@ -31,9 +31,9 @@ public class GridSystem : MonoBehaviour
             RotateGroup();
         }
 
-        if (fixPositions)
+        if (fixPositions) // Pozisyon düzeltmesi bildirilmişse...
         {
-            if (FixAllPositions(10.0f, 0.001f))
+            if (FixAllPositions(10.0f, 0.001f)) // Belirlenen değerlerde düzeltme Method'u çalıştırılır.
             {
                 fixPositions = false;
                 core.EndMoving();
@@ -41,10 +41,14 @@ public class GridSystem : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// GridSystem üzerindeki tüm birimleri kaldırır, objelerini patlatır ve hepsini yeniden oluşturur.
+    /// </summary>
     public void Reset()
     {
-        ManageCameraForGrid();
+        ManageCameraForGrid(); // Kamera değerleri yeniden ayarlanır.
 
+        // Tüm birimler kaldırılır.
         if (grid != null)
         {
             for (int y = 0; y < gridHeight; y++)
@@ -57,21 +61,27 @@ public class GridSystem : MonoBehaviour
             }
         }
 
-        grid = new GameObject[gridWidth, gridHeight];
+        grid = new GameObject[gridWidth, gridHeight]; // Izgara yeniden oluşturulur.
 
-        FillInBlanks();
+        FillInBlanks(); // Tüm boşluklar doldurulur.
         fixPositions = true;
         core.StartMoving();
     }
 
+    /// <summary>
+    /// GridSystem'e ait boyut ve pozisyon bilgileri Core'a gönderilerek kamera için gerekli ayarların yapılması sağlanır.
+    /// </summary>
     public void ManageCameraForGrid()
     {
         Vector3 cameraPosition = (ConvertGridToPosition(gridWidth, gridHeight) - ConvertGridToPosition(0, 0)) / 2 - (core.unitOffset / 2);
         cameraPosition.z = -10;
         float size = gridWidth * core.unitOffset.x + 2;
-        core.SetCameraSize(size, cameraPosition);
+        core.SetCameraSize(size, cameraPosition); // Bilgiler Core'a gönderilir ve kamera ayarlanır.
     }
 
+    /// <summary>
+    /// GridSystem'deki boş hücreleri doldurur.
+    /// </summary>
     public void FillInBlanks()
     {
         for (int y = 0; y < gridHeight; y++)
@@ -80,21 +90,27 @@ public class GridSystem : MonoBehaviour
             {
                 if (grid[x, y] == null)
                 {
-                    Color color = core.GetRandomColor();
-                    if ((core.GetScore() / (core.GetBombSpawned() + 1) > 1000))
+                    Color color = core.GetRandomColor(); // Rastgele renk alınır.
+                    if ((core.GetScore() / (core.GetBombSpawned() + 1) > 1000)) // >>> HER '1000' SKOR İÇİN BİR BOMBA OLUŞTURULUR <<<
                     {
-                        CreateHexagon(x, y, color, true);
-                        core.IncreaseBombSpawned();
+                        CreateHexagon(x, y, color, true); // Bomba
+                        core.IncreaseBombSpawned(); // Bir bomba oluşturulduğunu bildiriyoruz.
                     }
                     else
                     {
-                        CreateHexagon(x, y, color);
+                        CreateHexagon(x, y, color); // Hexagon
                     }
                 }
             }
         }
     }
 
+    /// <summary>
+    /// Bir ızgara koordinatını sahne pozisyonuna dönüştürür.
+    /// </summary>
+    /// <param name="x">X Koordinatı</param>
+    /// <param name="y">Y Koordinatı</param>
+    /// <returns></returns>
     public Vector2 ConvertGridToPosition(int x, int y)
     {
         float newX = x * core.unitOffset.x;
@@ -104,6 +120,12 @@ public class GridSystem : MonoBehaviour
         return new Vector2(newX, newY);
     }
 
+
+    /// <summary>
+    /// Bir sahne pozisyonunu ızgara koordinatına dönüştürür.
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
     public Vector2Int ConvertPositionToGrid(Vector2 position)
     {
         int x = Mathf.RoundToInt(position.x / core.unitOffset.x);
@@ -121,6 +143,12 @@ public class GridSystem : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
+    /// <summary>
+    /// Verilen sahne pozisyonuna mümkün olan en yakın 'grup oluşturma' noktasını verir.
+    /// Çıktı olarak verilen değer grubun eksen noktasıdır. (Pivot)
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
     public Vector2 FindAvaiblePivotPosition(Vector2 position)
     {
         Vector2 pivotPosition = new Vector2(0, 0);
@@ -149,6 +177,10 @@ public class GridSystem : MonoBehaviour
         return pivotPosition;
     }
 
+    /// <summary>
+    /// Verilen pozisyon grup oluşturmaya uygunsa, çevresindeki bloklardan bir grup oluşturur.
+    /// </summary>
+    /// <param name="pivotPosition"></param>
     public void CreateGroup(Vector2 pivotPosition)
     {
         if (pivot != null)
@@ -180,6 +212,9 @@ public class GridSystem : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Mevcut bir grubu çözerek serbest bırakır.
+    /// </summary>
     public void ReleaseGroup()
     {
         if (pivot == null)
@@ -195,6 +230,11 @@ public class GridSystem : MonoBehaviour
         pivot = null;
     }
 
+    /// <summary>
+    /// Mevcut grubun verilen bloğu içerip içermediğini kontrol eder.
+    /// </summary>
+    /// <param name="hexagon"></param>
+    /// <returns></returns>
     public bool IsHexagonInGroup(GameObject hexagon)
     {
         bool inGroup = false;
@@ -214,11 +254,21 @@ public class GridSystem : MonoBehaviour
         return inGroup;
     }
 
+    /// <summary>
+    /// Verilen ızgara koordinatlarının, GridSystem'in alanını aşıp aşmadığını kontrol eder.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <returns></returns>
     public bool CheckBounds(int x, int y)
     {
         return (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) ? true : false;
     }
 
+    /// <summary>
+    /// Tüm mevcut grubu yeniden kontrol ederek varsa parçalanmaya uygun blokları verir.
+    /// </summary>
+    /// <returns></returns>
     public GameObject[] CheckGroup()
     {
         List<GameObject> breakList = new List<GameObject>();
@@ -239,6 +289,12 @@ public class GridSystem : MonoBehaviour
         return breakList.ToArray();
     }
 
+    /// <summary>
+    /// Bir bloğu kontrol ederek varsa kendisi dahil çevresinde parçalanmaya uygun blokları verir.
+    /// </summary>
+    /// <param name="gridX">Bloğun X Koordinatı</param>
+    /// <param name="gridY">Bloğun Y Koordinatı</param>
+    /// <returns></returns>
     public List<GameObject> CheckHexagon(int gridX, int gridY)
     {
         Vector2Int[] oddVectors = new Vector2Int[] { new Vector2Int(0, 1), new Vector2Int(1, 1), new Vector2Int(1, 0),
@@ -290,6 +346,10 @@ public class GridSystem : MonoBehaviour
         return breakList;
     }
 
+    /// <summary>
+    /// Eğer GridSystem'de bir bomba varsa GameObject olarak verir.
+    /// </summary>
+    /// <returns></returns>
     public GameObject FindBomb()
     {
         GameObject bomb = null;
@@ -315,6 +375,14 @@ public class GridSystem : MonoBehaviour
         return bomb;
     }
 
+    /// <summary>
+    /// Bilgileri verilen bir bloğu GridSystem'e kaydeder ve sahneye çağırır.
+    /// </summary>
+    /// <param name="x">X Koordinatı</param>
+    /// <param name="y">Y Koordinatı</param>
+    /// <param name="color">Bloğun Rengi</param>
+    /// <param name="isBomb">Blok Bir Bomba Mı?</param>
+    /// <param name="heightOffset">Bloğun sahneye alınacağı ekstra yükseklik</param>
     public void CreateHexagon(int x, int y, Color color, bool isBomb = false, float heightOffset = 15)
     {
         GameObject hex = Instantiate(isBomb ? core.bomb : core.hexagon);
@@ -326,6 +394,10 @@ public class GridSystem : MonoBehaviour
         grid[x, y] = hex;
     }
 
+    /// <summary>
+    /// Verilen bloğu parçalar. GridSystem ve sahneden kaldırır.
+    /// </summary>
+    /// <param name="hexagon"></param>
     public void BreakHexagon(GameObject hexagon)
     {
         Vector2Int coordinate = ConvertPositionToGrid(hexagon.transform.position);
@@ -333,6 +405,9 @@ public class GridSystem : MonoBehaviour
         grid[coordinate.x, coordinate.y] = null;
     }
 
+    /// <summary>
+    /// GridSystem'de havada kalan bloklar varsa Y ekseni boyunca aşağı düşmelerini sağlar.
+    /// </summary>
     public void DropHexagonsOnGrid()
     {
         for (int x = 0; x < gridWidth; x++)
@@ -366,6 +441,12 @@ public class GridSystem : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sahnedeki tüm blokların GridSystem'e göre olmaları gereken yere hareket etmelerini sağlar.
+    /// </summary>
+    /// <param name="speed">Blokların hareket hızı</param>
+    /// <param name="delay">Bloklar arasında gecikme</param>
+    /// <returns></returns>
     public bool FixAllPositions(float speed = 10, float delay = 0.001f)
     {
         bool isCompleted = true;
@@ -393,15 +474,22 @@ public class GridSystem : MonoBehaviour
         return isCompleted;
     }
 
+    /// <summary>
+    /// Bir 'Döndürücü' tanımlayarak döndürme işlemi başlatır.
+    /// </summary>
+    /// <param name="direction"></param>
     public void StartGroupRotation(RotateDirection direction)
     {
         if (pivot != null)
         {
-            rotator = new Rotator(pivot, direction);
+            rotator = new Rotator(direction);
             core.StartMoving();
         }
     }
 
+    /// <summary>
+    /// Döndürücüyü kullanarak bir döndürme hamlesini ve sonuçlarını yürütür.
+    /// </summary>
     private void RotateGroup()
     {
         Quaternion currentRotation = pivot.transform.rotation;
@@ -455,11 +543,18 @@ public class GridSystem : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Döndürücüyü sıfırlayarak döndürme işlemini sonlandırır.
+    /// </summary>
     public void StopGroupRotation()
     {
         rotator = null;
     }
 
+    /// <summary>
+    /// Sahnede bulunan bir grubun 'eksen' nesnesini verir.
+    /// </summary>
+    /// <returns></returns>
     public GameObject GetPivot()
     {
         return pivot;
